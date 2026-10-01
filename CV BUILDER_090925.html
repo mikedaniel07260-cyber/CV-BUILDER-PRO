@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+  <html lang="fr">
+    <head>
+      <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>CV BUIDER PRO</title>
+          <style>
+            *{
+                box-sizing:border-box
+            }
+            body{
+                margin:0;
+                font-family:Arial;
+                background:#eef2f7;
+                color:#172033
+            }
+            header{
+                background:#08111f;
+                color:white;
+                padding:20px;
+                text-align:center
+            }
+            .container{
+                width:95%;
+                max-width:1200px;
+                margin:30px auto;
+                display:grid;
+                grid-template-columns:400px 1fr;
+                gap:25px
+            }
+            .panel,.cv{
+                background:white;
+                padding:25px;
+                border-radius:15px;
+                box-shadow:0 10px 30px #0001
+            }
+            input,textarea{
+                width:100%;
+                padding:11px;
+                margin:6px 0 12px;
+                border:1px solid #ccd5e0;
+                border-radius:8px
+            }
+            button{
+                border:0;
+                padding:10px 15px;
+                border-radius:8px;
+                background:#2563eb;
+                color:white;
+                cursor:pointer;
+                margin:3px
+            }
+            .danger{
+                background:#dc2626
+            }
+            .item{
+                padding:12px;
+                background:#f1f5f9;
+                margin:8px 0;
+                border-radius:8px
+            }
+            .cv h1{
+                color:#2563eb;
+                font-size:34px 
+            }
+            .cv h2{
+                border-bottom:2px solid #2563eb;
+                padding-bottom:5px
+            }
+            .tag{
+                display:inline-block;
+                background:#e0edff;
+                color:#1558b0;
+                padding:6px 10px;
+                border-radius:20px;
+                margin:4px
+            }
+            @media(max-width:850px) {
+                .container{grid-template-columns:1fr}}
+            @media print{
+                header,.panel,.actions{display:none}
+                body{background:white}
+                .container{display:block;margin:0;width:100%}
+                .cv{box-shadow:none}
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1><strong>CV BUILDER PRO</strong></h1>
+            <p><i>Crée ton CV professionnel</i></p>
+        </header>
+        <div class="container">
+            <section class="panel">
+                <h2>Informations</h2>
+                <input id="name" placeholder="Nom complet">
+                <input id="job" placeholder="Profession / titre">
+                <input id="email" placeholder="Email">
+                <input id="phone" placeholder="Téléphone">
+                <input id="location" placeholder="Ville / pays">
+                <textarea id="bio" placeholder="Profil professionnel"></textarea>
+                    <h2>Expérience</h2>
+                    <input id="expTitle" placeholder="Poste">
+                    <input id="expCompany" placeholder="Entreprise">
+                    <input id="expDate" placeholder="Mois-Année">
+                    <textarea id="expDesc" placeholder="Description"></textarea>
+                <button onclick="addExperience()">+ Ajouter</button>
+                <div id="experienceList"></div>
+                <h2>Formation</h2>
+                <input id="eduTitle" placeholder="Diplôme">
+                <input id="eduSchool" placeholder="Établissement">
+                <input id="eduDate" placeholder="Année">
+                <button onclick="addEducation()">+ Ajouter</button>
+                <div id="educationList"></div>
+                <h2>Compétences</h2>
+                <input id="skill" placeholder="Ex: JavaScript">
+                <button onclick="addSkill()">Ajouter</button>
+                <div id="skillList"></div>
+                <br>
+                    <button onclick="save()"> Sauvegarder</button>
+                    <button onclick="window.print()"> Exporter PDF</button>
+            </section>
+            <section class="cv">
+                <h1 id="cvName">Votre nom</h1>
+                <h3 id="cvJob">Votre profession</h3>
+                <p>
+                 <span id="cvEmail">Email</span>
+                </p>
+                <p>
+                 <span id="cvPhone">Téléphone</span>
+                </p>
+                <p>
+                 <span id="cvLocation">Ville - Pays</span>
+                </p>
+                <hr>
+                    <h2>Profil</h2>
+                    <p id="cvBio">
+                        Votre présentation professionnelle...
+                    </p>
+                    <h2>Expériences</h2>
+                    <div id="cvExperience"></div>
+                    <h2>Formation</h2>
+                    <div id="cvEducation"></div>
+                    <h2>Compétences</h2>
+                    <div id="cvSkills"></div>
+            </section>
+        </div>
+        <script>
+            let data=JSON.parse(localStorage.getItem("cvData"))||{
+                name:"",
+                job:"",
+                email:"",
+                phone:"",
+                location:"",
+                bio:"",
+                experiences:[],
+                education:[],
+                skills:[]
+            };
+            const fields=["name","job","email","phone","location","bio"];
+            fields.forEach(id=>{
+                document.getElementById(id).value=data[id];
+                document.getElementById(id).addEventListener("input",()=>{data[id]=document.getElementById(id).value;
+                render();
+                });});
+            function addExperience(){
+                let title=expTitle.value.trim();
+                if(!title)return;
+                data.experiences.push({title,company:expCompany.value,date:expDate.value,desc:expDesc.value});
+                expTitle.value="";
+                expCompany.value="";
+                expDate.value="";
+                expDesc.value="";
+                render();}
+            function addEducation(){
+                let title=eduTitle.value.trim();
+                if(!title)return;
+                    data.education.push({title,school:eduSchool.value,date:eduDate.value});
+                    eduTitle.value="";
+                    eduSchool.value="";
+                    eduDate.value="";
+                    render();
+            }
+            function addSkill(){
+                let value=skill.value.trim();
+                if(!value)return;
+                data.skills.push(value);
+                skill.value="";
+                render();
+            }
+            function deleteExperience(i){
+                data.experiences.splice(i,1);
+                render();
+            }
+            function deleteEducation(i){
+                data.education.splice(i,1);
+                render();
+            }
+            function deleteSkill(i){
+                data.skills.splice(i,1);
+                render();
+            }
+            function save(){
+                localStorage.setItem(
+                "cvData",
+                JSON.stringify(data));
+                alert("CV sauvegardé.");
+            }
+            function render(){
+                cvName.textContent=data.name||"Votre nom";
+                cvJob.textContent=data.job||"Votre profession";
+                cvEmail.textContent=data.email||"Email";
+                cvPhone.textContent=data.phone||"Téléphone";
+                cvLocation.textContent=data.location||"Ville";
+                cvBio.textContent=data.bio||"Votre présentation...";
+                cvExperience.innerHTML=data.experiences.map((x,i)=>`
+            <div class="item">
+                <strong>${x.title}</strong>
+                <br>
+                    ${x.company} — ${x.date}
+                    <p>${x.desc}</p>
+                        <button class="danger" onclick="deleteExperience(${i})">
+                            Supprimer
+                        </button>
+            </div>
+            `).join("");
+            cvEducation.innerHTML=data.education.map((x,i)=>`
+            <div class="item">
+                <strong>${x.title}</strong>
+                <br>
+                    ${x.school} — ${x.date}
+                    <button class="danger" onclick="deleteEducation(${i})">
+                        Supprimer
+                    </button>
+            </div>
+                `).join("");
+            cvSkills.innerHTML=data.skills.map((x,i)=>`
+            <span class="tag">
+                ${x}
+                <button class="danger" onclick="deleteSkill(${i})">×</button>
+            </span>
+                `).join("");
+                experienceList.innerHTML=data.experiences.length+" expérience(s)";
+                educationList.innerHTML=data.education.length+" formation(s)";
+                skillList.innerHTML=data.skills.length+" compétence(s)";
+            }render();
+        </script>
+    </body>
+</html>
